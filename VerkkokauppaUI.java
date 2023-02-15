@@ -18,7 +18,7 @@ public class VerkkokauppaUI {
         int valinta = -1; // joku muu kuin 0
         while (valinta != 0) {
             tulostaMenu();
-            valinta = lueValinta(0, 4);
+            valinta = lueKokonaisluku(0, 4, "Anna valinta");
             if (valinta == 1) {
                 asiakasMenu();
             } else if (valinta == 2) {
@@ -43,7 +43,7 @@ public class VerkkokauppaUI {
             System.out.println("3. Muuta kanta-asiakkaaksi");
             System.out.println("0. Poistu");
 
-            valinta = lueValinta(0, 3);
+            valinta = lueKokonaisluku(0, 3, "Anna valinta");
             if (valinta == 1) {
                 String asnro = lueMerkkijono("Asiakasnumero");
                 String nimi = lueMerkkijono("Nimi");
@@ -75,12 +75,91 @@ public class VerkkokauppaUI {
     }
 
     private void tuoteMenu() {
+        int valinta = -1;
+        while (valinta != 0) {
+            System.out.println(verkkokauppa.listaaTuotteet());
+            System.out.println();
+            System.out.println("1. Lisää tuote");
+            System.out.println("2. Poista tuote");
+            System.out.println("3. Muuta saldoa");
+            System.out.println("4. Muuta hintaa");
+            System.out.println("0. Poistu");
+
+            valinta = lueKokonaisluku(0, 4,"Anna valinta");
+            if (valinta == 1) {
+                String nimi = lueMerkkijono("Nimi");
+                double hinta = lueDesimaaliluku(0, Tuote.MAKSIMIHINTA, "Anna hinta");
+                String virt = lueMerkkijono("Onko virtuaalinen tuote kyllä / ei");
+                if (virt.equals("kyllä")) {
+                    verkkokauppa.lisaaTuote(new VirtuaalinenTuote(nimi, hinta));
+                } else {
+                    int saldo = lueKokonaisluku(0, Tuote.MAKSIMISALDO, "Anna saldo");
+                    verkkokauppa.lisaaTuote(new Tuote(nimi, saldo, hinta));
+                }
+
+                System.out.println("Tuote lisätty!");
+            } else if (valinta == 2) {
+                String nimi = lueMerkkijono("Nimi");
+                Tuote tuote = verkkokauppa.annaTuote(nimi);
+                if (tuote != null) {
+                    verkkokauppa.poistaTuote(tuote);
+                    System.out.println("Tuote poistettu!");
+                } else {
+                    System.out.println("Tuotetta ei löytynyt.");
+                }
+            } else if (valinta == 3) {
+                String nimi = lueMerkkijono("Nimi");
+                Tuote tuote = verkkokauppa.annaTuote(nimi);
+                if (tuote != null) {
+                    int saldo = lueKokonaisluku(0, Tuote.MAKSIMISALDO, "Anna uusi saldo");
+                    tuote.setSaldo(saldo);
+                } else {
+                    System.out.println("Tuotetta ei löytynyt.");
+                }
+            } else if (valinta == 4) {
+                String nimi = lueMerkkijono("Nimi");
+                Tuote tuote = verkkokauppa.annaTuote(nimi);
+                if (tuote != null) {
+                    double hinta = lueDesimaaliluku(0, Tuote.MAKSIMIHINTA, "Anna uusi hinta");
+                    tuote.setHinta(hinta);
+                } else {
+                    System.out.println("Tuotetta ei löytynyt.");
+                }
+            }
+        }
     }
 
     private void myyjaMenu() {
+        int valinta = -1;
+        while (valinta != 0) {
+            System.out.println(verkkokauppa.listaaMyyjat());
+            System.out.println();
+            System.out.println("1. Lisää myyjä");
+            System.out.println("2. Poista myyjä");
+            System.out.println("0. Poistu");
 
+            valinta = lueKokonaisluku(0, 2, "Anna valinta");
+            if (valinta == 1) {
+                String tunniste = lueMerkkijono("Tunniste");
+                String nimi = lueMerkkijono("Nimi");
+                verkkokauppa.lisaaMyyja(new Myyja(tunniste, nimi, 0));
+                System.out.println("Myyjä lisätty!");
+            } else if (valinta == 2) {
+                String tunniste = lueMerkkijono("Tunniste");
+                Myyja m = verkkokauppa.annaMyyja(tunniste);
+                if (m != null) {
+                    verkkokauppa.poistaMyyja(m);
+                    System.out.println("Myyjä poistettu!");
+                } else {
+                    System.out.println("Myyjää ei löytynyt.");
+                }
+            }
+        }
     }
 
+    /**
+     * TODO: Toteuta tämä demojen 2. tehtävänä - katso demosta tarkemmat ohjeet
+     */
     private void ostotapahtumaMenu() {
 
     }
@@ -100,20 +179,46 @@ public class VerkkokauppaUI {
      *
      * @param minimi  pienin sallittu arvo
      * @param maksimi suurin sallittu arvo
+     * @param kehote käyttäjälle näytetty kehote
      * @return käyttäjän syötteen kokonaislukuna
      */
-    private int lueValinta(int minimi, int maksimi) {
+    private int lueKokonaisluku(int minimi, int maksimi, String kehote) {
         while (true) {
-            System.out.print("Valitse toiminto: ");
+            System.out.print(kehote + ": ");
             try {
-                int valinta = Integer.parseInt(lukija.nextLine());
-                if (valinta >= minimi && valinta <= maksimi) {
-                    return valinta;
+                int arvo = Integer.parseInt(lukija.nextLine());
+                if (arvo >= minimi && arvo <= maksimi) {
+                    return arvo;
                 }
-                System.out.println("Valinnan pitää olla väliltä " +
+                System.out.println("Arvon pitää olla väliltä " +
                         minimi + " - " + maksimi);
             } catch (NumberFormatException nfe) {
-                System.out.println("Anna valinta numerona!");
+                System.out.println("Anna arvo numerona!");
+            }
+        }
+    }
+
+    /**
+     * Lukee käyttäjältä syötteen ja palauttaa sen liukulukuna.
+     * Luvun tulee olla annetun minimi ja maksimiarvon välissä.
+     *
+     * @param minimi  pienin sallittu arvo
+     * @param maksimi suurin sallittu arvo
+     * @param kehote käyttäjälle näytetty kehote
+     * @return käyttäjän syötteen liukulukuna
+     */
+    private double lueDesimaaliluku(double minimi, double maksimi, String kehote) {
+        while (true) {
+            System.out.print(kehote + ": ");
+            try {
+                double arvo = Double.parseDouble(lukija.nextLine());
+                if (arvo >= minimi && arvo <= maksimi) {
+                    return arvo;
+                }
+                System.out.println("Luvun pitää olla väliltä " +
+                        minimi + " - " + maksimi);
+            } catch (NumberFormatException nfe) {
+                System.out.println("Anna luku numerona!");
             }
         }
     }

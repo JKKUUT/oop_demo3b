@@ -3,6 +3,16 @@ public class Tuote {
     private int saldo;
     private double hinta;
 
+    /**
+     * Yksittäisen tuotteen maksimihinta
+     */
+    public static double MAKSIMIHINTA = 1000000;
+
+    /**
+     * Yksittäisen tuotteen maksimisaldo
+     */
+    public static int MAKSIMISALDO = 10000;
+
     public Tuote(String nimi, int saldo, double hinta) {
         this.nimi = nimi;
         this.saldo = saldo;
