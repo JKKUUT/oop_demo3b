@@ -157,12 +157,56 @@ public class VerkkokauppaUI {
         }
     }
 
-    /**
-     * TODO: Toteuta tämä demojen 2. tehtävänä - katso demosta tarkemmat ohjeet
-     */
     private void ostotapahtumaMenu() {
+        int valinta = -1;
+        while (valinta != 0) {
+            System.out.println(verkkokauppa.listaaTapahtumat());
+            System.out.println();
+            System.out.println("1. Lisää ostotapahtuma");
+            System.out.println("2. Poista ostotapahtuma");
+            System.out.println("0. Poistu");
 
+            valinta = lueKokonaisluku(0, 2, "Anna valinta");
+            if (valinta == 1) {
+                System.out.println(verkkokauppa.listaaMyyjat());
+                String tunniste = lueMerkkijono("Anna myyjän tunniste");
+                Myyja m = verkkokauppa.annaMyyja(tunniste);
+                if (m != null) {
+                    System.out.println(verkkokauppa.listaaTuotteet());
+                    String nimi = lueMerkkijono("Anna tuotteen nimi");
+                    Tuote t = verkkokauppa.annaTuote(nimi);
+                    if (t != null) {
+                        System.out.println(verkkokauppa.listaaAsiakkaat());
+                        String asiakasTunniste = lueMerkkijono("Anna asiakkaan tunniste");
+                        Asiakas a = verkkokauppa.annaAsiakas(asiakasTunniste);
+                        if (a != null) {
+                            int maara = lueKokonaisluku(1, t.getSaldo(), "Anna tuotteen määrä");
+                            verkkokauppa.lisaaTapahtuma(new Ostotapahtuma(a, m, t, maara));
+                            System.out.println("Ostotapahtuma lisätty!");
+                        } else {
+                            System.out.println("Asiakasta ei löytynyt.");
+                        }
+                    } else {
+                        System.out.println("Tuotetta ei löytynyt.");
+                    }
+                } else {
+                    System.out.println("Myyjää ei löytynyt.");
+                }
+            }
+            if (valinta == 2) {
+                String tunniste = lueMerkkijono("Anna poistettavan tapahtuman numero");
+                Ostotapahtuma tapahtuma = verkkokauppa.annaTapahtuma(Integer.parseInt(tunniste));
+                if (tapahtuma != null) {
+                    verkkokauppa.poistaOstotapahtuma(tapahtuma);
+                    System.out.println("Tapahtuma poistettu!");
+                } else {
+                    System.out.println("Tapahtumaa ei löytynyt.");
+                }
+            }
+
+        }
     }
+
 
     private void tulostaMenu() {
         System.out.println("1. Asiakkaat");
